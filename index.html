@@ -83,7 +83,7 @@
       inset: 0;
       background-image:
         linear-gradient(90deg, rgba(7, 8, 13, 0.95) 0%, rgba(7, 8, 13, 0.7) 42%, rgba(7, 8, 13, 0.2) 100%),
-        url("https://commons.wikimedia.org/wiki/Special:FilePath/Nightwish%20-%20Wacken%20Open%20Air%202018-1650.jpg?width=1600");
+        url("assets/photos/nightwish-12-large.webp");
       background-position: center;
       background-size: cover;
       filter: saturate(0.95) contrast(1.08);
@@ -423,7 +423,7 @@
       .top-hero::before {
         background-image:
           linear-gradient(180deg, rgba(7, 8, 13, 0.15) 0%, rgba(7, 8, 13, 0.76) 56%, rgba(7, 8, 13, 0.98) 100%),
-          url("https://commons.wikimedia.org/wiki/Special:FilePath/Nightwish%20-%20Wacken%20Open%20Air%202018-1650.jpg?width=1000");
+          url("assets/photos/nightwish-12-large.webp");
         background-position: center top;
       }
 
@@ -646,8 +646,17 @@
     const closeBtn = document.querySelector("#closeBtn");
     let currentPage = 0;
 
+    const allPhotoFiles = pages.flatMap((page) => page.photos);
+
     function filePath(file, width = 980) {
-      return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
+      const photoIndex = allPhotoFiles.indexOf(file);
+      if (photoIndex === -1) {
+        return `https://commons.wikimedia.org/wiki/Special:FilePath/${encodeURIComponent(file)}?width=${width}`;
+      }
+
+      const id = String(photoIndex + 1).padStart(2, "0");
+      const size = width >= 1200 ? "large" : "thumb";
+      return `assets/photos/nightwish-${id}-${size}.webp`;
     }
 
     function filePage(file) {
@@ -685,7 +694,11 @@
         const img = document.createElement("img");
         img.src = filePath(file, 900);
         img.alt = `${page.label} - Nightwish 照片 ${photoIndex + 1}`;
-        img.loading = photoIndex < 4 ? "eager" : "lazy";
+        img.width = 560;
+        img.height = 700;
+        img.decoding = "async";
+        img.loading = currentPage === 0 && photoIndex < 2 ? "eager" : "lazy";
+        img.fetchPriority = currentPage === 0 && photoIndex < 2 ? "high" : "low";
 
         const meta = document.createElement("div");
         meta.className = "photo-meta";
